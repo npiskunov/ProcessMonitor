@@ -1,0 +1,34 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>ProcessMonitorWeb</title>
+    <script src="scripts/jquery/jquery.min.js"></script>
+    <script src="scripts/jquery.sortElements/jquery.sortElements.js"></script>
+    <script src="scripts/uuid/uuid.min.js"></script>
+    <script src="scripts/processMonitor.js"></script>
+    <script src="scripts/performanceNotifications.js"></script>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="/docs">API docs</a></li>
+            <li><a href="/">Dashboard</a></li>
+        </ul>
+    </nav>
+    <h1>Resources utilization by process:</h1>
+    <button id="stop">Stop monitoring</button>
+    <button id="start">Start monitoring</button>
+    <table style="width: 100%" id="dashboard">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>CPU</th>
+                <th>Working set</th>
+                <th>IO bytes/sec</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</body>
+</html>

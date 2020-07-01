@@ -1,0 +1,59 @@
+﻿@page
+@model ProcessMonitorWeb.Pages.DocsModel
+@using ProcessMonitorWeb.Contract;
+@using System.Text.Json;
+@{
+    var metricMessageSample = new ProcessMetricDto(new Payload() { Cpu = 12.456F, Memory = 757220, Io = 273729.3F, Name = "svchost#4" });
+    var terminatedMessageSample = new ProcessMetricDto("someprocess", Operation.ProcessTerminated);
+    var serializerSettings = new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>API docs</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="/docs">API docs</a></li>
+            <li><a href="/">Dashboard</a></li>
+        </ul>
+    </nav>
+    <h1>API docs</h1>
+    <p>
+        Resources utilization app is a client-side plain js (with a portion of jquery) application providing key metrics per active process on server.
+        Frontend app relies on websockets-based backend API for efficient realtime metrics reporting from server.
+        Websockets endpoints contracts and description could be found below
+    </p>
+    <h2>Base url: @this.Request.Host</h2>
+    <h2>@ProcessMonitorWeb.Startup.MetricsWsRoute - metrics WS endpoint</h2>
+    <h3>Input messages</h3>
+    <p>Server doesnt expect any data from client, so any messages would be ignored. However sending messages to server will not break down communcation channel.</p>
+    <h3>Output messages</h3>
+    <p>
+        In order to establish correct connection to this WebSockets endpoint, GUID connection identifier should be specified by client as URL path param. It's recommended to store this identifier persistently (e.g. session) and reuse for same client.
+        Server sends messages of single type <b>@nameof(ProcessMonitorWeb.Contract.ProcessMetricDto)</b> in JSON format, serialized by camel case convention.
+        Majority of messages sent have operation type <b>@Operation.Metric</b> inside, what means that message represents new samples for particular process.
+        In case when previosuly reported process exits or terminates, backend sends <b>@Operation.ProcessTerminated</b> message, indicating process termination.
+        Such messages always have empty (default values) for all types of payload metrics, so that only operation and process name are specified.
+    </p>
+    <p>Example of <b>@Operation.Metric</b> message</p>
+    <pre>@JsonSerializer.Serialize(metricMessageSample, serializerSettings)</pre>
+    <p>Example of <b>@Operation.ProcessTerminated</b> message</p>
+    <pre>@JsonSerializer.Serialize(terminatedMessageSample, serializerSettings)</pre>
+
+    <h2>@ProcessMonitorWeb.Startup.NotificationsRoute - RESTful http method</h2>
+    <p>
+        Method implements plain long-polling approach for resources alert notifications.
+        When resources usage reaches threshold (thresholds configured on server, in app configuration) method responds with JSON object of type @nameof(ResourceAlertDto) describing alert happened.
+    </p>
+    <h2>Types description</h2>
+    @Model.GetTypeDescription(typeof(ProcessMetricDto))
+    @Model.GetTypeDescription(typeof(Payload))
+    @Model.GetTypeDescription(typeof(Operation))
+    @Model.GetTypeDescription(typeof(ResourceAlertDto))
+    @Model.GetTypeDescription(typeof(ResourceType))
+</body>
+</html>
